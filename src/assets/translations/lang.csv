@@ -1,0 +1,33 @@
+key,en_GB,pt_BR
+title,Alfredo,Alfredo
+manual,Manual,Manual
+settings,Settings,Configurações
+fill-pdfs-button,Fill PDFs,Prencher PDFs
+open-csv,Open CSV,Abrir CSV
+fill-pdf-title,Fill Documents,Preencher Documentos
+empty-csv-error,The File is empty.,O arquivo está vazio.
+invalid-csv-title,Invalid CSV,CSV invalido
+okay,Okay,Okay
+open-template-document,Open template document,Abrir documento modelo
+open-export-path,Open export folder,Abrir pasta de saida
+export-options,Export options,Opções de exportação
+export,Export,Exportar
+invalid-header,"Invalid header, did you forget to add the brackets?","Cabeçalho invalido, será que você esqueceu de adicionar os conchetes?"
+csv-generic-error,"Sorry, something went wrong, it probably wasn't your fault :P","Desculpe, Alguma coisa deu errado, provavelmente não foi sua culpa :P"
+error,Error,Erro
+valid-header-example,Example: [YOUR_CODE_HERE],Exemplo: [SEU_CODIGO_AQUI]
+loading-csv,Loading CSV...,Carregando CSV...
+processing-csv,Processing CSV...,Processando CSV...
+csv-import-center-msg,Import the CSV to view...,Importe o CSV para visualizá-lo...
+is-numeric-tooltip,This column is considered numeric because the first value is numeric,Essa coluna é considerada numerica pois o seu primeiro valor é numerico
+not-numeric-tooltip,Text Column,Coluna de texto
+csv-loading-limit-tip,"Tip: If your going to do more than 500 file exports, only the first 500 will be previewed","Dica: Se você for exportar mais de 500 arquivos, somente os 500 primeiros serão pré-visualizados"
+valid-headers,Valid headers,Cabeçalhos validos
+invalid-headers,invalid-headers,Cabeçalhos invalidos
+rows,Rows,Linhas
+columns,Columns,Colunas
+none,None,Nenhum
+not-valid-headers-warning,are not valid headers! therefore they will be ignored...,São Cabeçalhos invalidos! por isso eles serão ignorados...
+not-valid-headers-tip,"If this is an error, consider enclosing the headers in square brackets, like this: [YOUR_CODE_HERE]","Caso isso seja um erro, considere colocar os cabeçalhos entre conchetes, assim: [SEU_CODIGO_AQUI]"
+understood,Understood,Entendido
+loading-document-template,Loading document template...,Carregando documento modelo...
