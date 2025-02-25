@@ -18,10 +18,10 @@ class FillPdf(ViewContainer):
         self.csv_encoding: str = "utf-8"
         self.csv: CSV = None
         self.document_path: Path = None
-        self.export_path: Path = None
         self.csv_file_title: str = None
         self.document_template: DocumentTemplate = None
         self.button_file_types: set = set()
+        self.export_folder: Path = None
         
     @override
     def setup(self) -> None:
@@ -43,8 +43,6 @@ class FillPdf(ViewContainer):
     @override
     async def file_picker_result(self, event: ft.FilePickerResultEvent) -> None:
 
-        print(event)
-
         is_folder = False
         file_path:Path = None
 
@@ -55,12 +53,23 @@ class FillPdf(ViewContainer):
                 is_folder = True
                 file_path = Path(event.path)
             else:
+                if isinstance(self.export_folder, Path):
+                    self.controls.pick_export_path_button.text = "✅ %s"%self.export_folder.name
+                    self.controls.pick_export_path_button.update()
+                else:
+                    self.controls.pick_export_path_button.text = tr("open-export-path")
+                    self.controls.pick_export_path_button.update()
                 return
         else:
             file_path = Path(event.files[0].path)
 
         if is_folder:
-            print(file_path)
+            self.export_folder = file_path
+            self.controls.pick_export_path_button.text = "✅ %s"%file_path.name
+            self.controls.pick_export_path_button.update()
+            self.page.run_task(
+                self.export_button_enabler
+            )
 
         if file_path.suffix == "":
             self.controls.reset_csv_button()
@@ -74,7 +83,11 @@ class FillPdf(ViewContainer):
                 try:
                     self.document_template = TXTTemplate(file_path)
                 except DocumentEmpty as e:
-                    print(e)
+                    self.controls.invalid_document_alert.content.value = tr("empty-document-error")
+                    self.page.open(
+                        self.controls.invalid_document_alert
+                    )
+                    self.page.update()
                 self.controls.reset_document_button()
                 
 
@@ -87,7 +100,12 @@ class FillPdf(ViewContainer):
     async def open_file(self, extensions: list[str],
         title: str, change_attr: tuple[object, str, object], event: ft.ControlEvent=None,is_folder: bool = False) -> None:
 
+        if isinstance(change_attr,tuple):
+            setattr(change_attr[0],change_attr[1],change_attr[2])
+            self.view.update()
+
         if is_folder:
+            await asyncio.sleep(0.05) # HACK: For some reason 'get_directory_path' freezes the app on windows...
             self.app_data.file_picker.get_directory_path(
                 dialog_title=title,
             )
@@ -100,11 +118,8 @@ class FillPdf(ViewContainer):
                 )
 
             self.button_file_types = set(extensions)
-        
 
-        if isinstance(change_attr,tuple):
-            setattr(change_attr[0],change_attr[1],change_attr[2])
-            self.view.update()
+        
 
     def get_table(self, csv:CSV) -> ft.DataTable:
 
@@ -123,10 +138,10 @@ class FillPdf(ViewContainer):
             
             tool_tip: str = None
 
-            if is_numeric:
-                tool_tip: str = tr("is-numeric-tooltip")
-            else:
-                tool_tip: str = tr("not-numeric-tooltip")
+            # if is_numeric: # Disabled because theres an bug with the text
+            #     tool_tip: str = tr("is-numeric-tooltip")
+            # else:
+            #     tool_tip: str = tr("not-numeric-tooltip")
 
             data_columns.append(
                 ft.DataColumn(
@@ -245,7 +260,7 @@ class FillPdf(ViewContainer):
             self.controls.reset_csv_button()
 
     def validade_export(self) -> bool:
-        return True if self.csv and self.document_template else False
+        return True if self.csv and self.document_template and self.export_folder else False
 
     async def export_button_enabler(self):
         self.controls.export_button.disabled = not self.validade_export()

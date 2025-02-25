@@ -35,7 +35,6 @@ class ViewContainer():
     @property
     def view(self) -> ft.View:
         if self.__VIEW is None:
-            # print("Loading... %s"%self)
             self.setup()
             self.page.run_task(self.app_data.loaded_views.add, self)
         return self.__VIEW

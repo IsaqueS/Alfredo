@@ -28,6 +28,19 @@ class Controls(ControlsContainer):
             ]
         )
 
+        self.invalid_document_alert: ft.AlertDialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text(tr("invalid-document-title")),
+            content=ft.Text("error-here",width=300,text_align=ft.TextAlign.JUSTIFY),
+            actions=[
+                ft.TextButton(
+                    text=tr("okay"),
+                    on_click=lambda x: self.view_container.page.close(self.invalid_document_alert)
+                ),
+                
+            ]
+        )
+
         action_button_style = ft.ButtonStyle(color=ft.Colors.BLUE)
 
         self.invalid_headers_banner= ft.Banner(
@@ -50,7 +63,7 @@ class Controls(ControlsContainer):
             on_click=view_container.go_back
         )
 
-        self.go_to_manual: ft.ElevatedButton = ft.ElevatedButton(
+        self.go_to_manual: ft.FilledButton = ft.FilledButton(
             text=tr("manual"),
             icon=ft.Icons.BOOK_ROUNDED
         )
@@ -67,7 +80,7 @@ class Controls(ControlsContainer):
             
         )
 
-        self.open_csv_button: ft.ElevatedButton = ft.ElevatedButton(
+        self.open_csv_button: ft.FilledButton = ft.FilledButton(
             text=tr("open-csv"),
             icon=ft.Icons.FILE_OPEN_ROUNDED,
             col=COL_SETTINGS,
@@ -81,7 +94,7 @@ class Controls(ControlsContainer):
             (self.open_csv_button, "text", tr("loading-csv"))
         )
 
-        self.open_document_button: ft.ElevatedButton = ft.ElevatedButton(
+        self.open_document_button: ft.FilledButton = ft.FilledButton(
             text=tr("open-template-document"),
             icon=ft.Icons.FILE_COPY_ROUNDED,
             col=COL_SETTINGS,
@@ -95,7 +108,7 @@ class Controls(ControlsContainer):
             (self.open_document_button, "text", tr("loading-document-template"))
         )
 
-        self.pick_export_path_button:ft.ElevatedButton = ft.ElevatedButton(
+        self.pick_export_path_button:ft.FilledButton = ft.FilledButton(
             text=tr("open-export-path"),
             icon=ft.Icons.FOLDER_OPEN_ROUNDED,
             col=COL_SETTINGS,
@@ -122,7 +135,7 @@ class Controls(ControlsContainer):
             
         )
 
-        self.export_button: ft.ElevatedButton = ft.ElevatedButton(
+        self.export_button: ft.FilledButton = ft.FilledButton(
             text=tr("export"),
             icon=ft.Icons.SAVE_AS_ROUNDED,
             col=COL_SETTINGS_BIG,

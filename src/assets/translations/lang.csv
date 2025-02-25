@@ -2,7 +2,7 @@ key,en_GB,pt_BR
 title,Alfredo,Alfredo
 manual,Manual,Manual
 settings,Settings,Configurações
-fill-pdfs-button,Fill PDFs,Prencher PDFs
+fill-pdfs-button,Fill Documents,Prencher Documentos
 open-csv,Open CSV,Abrir CSV
 fill-pdf-title,Fill Documents,Preencher Documentos
 empty-csv-error,The File is empty.,O arquivo está vazio.
@@ -31,3 +31,9 @@ not-valid-headers-warning,are not valid headers! therefore they will be ignored.
 not-valid-headers-tip,"If this is an error, consider enclosing the headers in square brackets, like this: [YOUR_CODE_HERE]","Caso isso seja um erro, considere colocar os cabeçalhos entre conchetes, assim: [SEU_CODIGO_AQUI]"
 understood,Understood,Entendido
 loading-document-template,Loading document template...,Carregando documento modelo...
+start-title,How can i help you today?,Como posso te ajudar hoje?
+coming-soon,Coming soon...,Em Breve...
+version,Version,Versão
+loading-folder,Loading folder...,Carregando pasta...
+invalid-document-title,Invalid document,Documento invalido
+empty-document-error,The document is empty,O documento está vazio

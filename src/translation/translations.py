@@ -104,6 +104,7 @@ class Translations:
             reader: csv.reader = csv.reader(file)
             next(reader)
             for row in reader:
+                assert not isinstance(self.__messages.get(row[0],None), str), "'%s' key is duplicated" %row[0] # Check if key is duplicated
                 self.__messages[row[0]] = row[current_language_index]
     
     def get_message(self, msg: str) -> str:
