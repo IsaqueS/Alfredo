@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from typing import Optional
 
 class DocumentTemplate:
     def __init__(self, file_path: Path):
@@ -10,12 +11,30 @@ class DocumentTemplate:
         self.text_encoding: str = "utf-8"
         self.valid_inputs: set[str] = None
         self.file = None
+        self.file_names: tuple[str] = tuple(self.file_path.name.split("."))
+        self.amount_done: int = 0
+        self.total_to_be_done: int = None
     
     def close_file(self) -> None:
         # print("Closed Called")
         if self.file:
             # print("Closed Executed")
             self.file.close()
+    
+    async def export(self, headers: tuple[str, ...], data: tuple[str, ...], path: Path) -> Optional[tuple[str,...]]:
+        assert isinstance(path, Path), "%s is not an Path object!"%path
+    
+    def get_file_path(self,data:tuple[str,...]) -> str:
+        return "%s - %s.%s"%(
+            self.file_names[0],
+            data,
+            self.file_names[-1],
+        )
+
+    def set_counter(self, amount: int) -> None:
+        self.amount_done = 0
+        self.total_to_be_done = amount
+    
 
     def __del__(self) -> None:
         self.close_file()

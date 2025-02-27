@@ -1,7 +1,10 @@
+import asyncio
+from typing import Optional, override
 from model.fillpdf.document_template import DocumentTemplate
 from pathlib import Path
 import codecs
 import re
+import random
 
 class TXTTemplate(DocumentTemplate):
     def __init__(self, file_path: Path) -> None:
@@ -15,7 +18,14 @@ class TXTTemplate(DocumentTemplate):
         self.valid_inputs = set(
             re.findall("\\[.*?\\]",text)
         )
-        print(self.valid_inputs)
+    
+    @override
+    async def export(self, headers: tuple[str, ...], data: tuple[str, ...], path: str) -> Optional[tuple[str,...]]:
+        await super().export(headers,data,path)
+        await asyncio.sleep(random.uniform(0.1,10.))
+        print(data)
+    
+    
 
             
 

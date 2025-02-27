@@ -1,7 +1,7 @@
 from pathlib import Path
 import flet as ft
 from views.view_container import ViewContainer
-from typing import override
+from typing import Any, Coroutine, Optional, override
 from translation import tr
 from model.fillpdf.csv import CSV, InvalidCSVHeader
 from model.fillpdf.document_template import DocumentTemplate, DocumentEmpty
@@ -9,6 +9,7 @@ from model.fillpdf.document_templates import TXTTemplate
 import asyncio
 import os
 from controls.pdf.fill_pdf import Controls
+from functools import partial, wraps
 
 
 class FillPdf(ViewContainer):
@@ -28,9 +29,85 @@ class FillPdf(ViewContainer):
         super().setup()
 
         self.controls = Controls(self)
+        self.controls.export_button.on_click = self.export
 
         self.view.controls.append(self.controls.app_bar)
         self.view.controls.append(self.controls.column)
+    
+    async def update_loading(self, coroutine) -> Optional[tuple[str,...]]:
+        
+        result = await coroutine
+        print("executed! hahahaha")
+        
+        return result
+
+    async def export(self, event: ft.ControlEvent) -> None:
+        # print("Exported: %s\nOn folder: %s\nUsing: %s" %(
+        #     self.csv.path,
+        #     self.export_folder,
+        #     self.document_template.file_path
+        #     )
+        # )
+
+        export_folder_name: str = "%s %s"%(
+            tr("export-of"),
+            self.document_template.file_path.name.split(".")[0],
+        )
+        export_folder: Path = None
+
+        if not Path.exists(self.export_folder / export_folder_name):
+            export_folder = self.export_folder / export_folder_name
+            Path.mkdir(export_folder)
+        else:
+            folder_number: int = 1
+            new_folder_name: str = "%s (%s)"%(
+                export_folder_name,
+                folder_number,
+            )
+
+            while Path.exists(self.export_folder / new_folder_name):
+                folder_number += 1
+                new_folder_name: str = "%s (%s)"%(
+                    export_folder_name,
+                    folder_number,
+                )
+            
+            export_folder = self.export_folder / new_folder_name
+            Path.mkdir(export_folder)
+
+        tasks: list = []
+        
+        for index in range(self.csv.amount_of_lines):
+            
+            data: list[str] = []
+
+            for header in self.csv.valid_headers:
+                data.append(self.csv.data[header][index])
+            
+            data_tuple = tuple(data)
+
+            tasks.append(
+                self.update_loading(
+                    self.document_template.export(
+                        self.csv.valid_headers,
+                        data_tuple,
+                        (export_folder / self.document_template.get_file_path(data_tuple)),
+                    )
+                )
+            )
+        
+        self.page.views.append(self.routes["/pdffill/export"].view)
+        self.page.update()
+
+        self.document_template.set_counter(self.csv.amount_of_lines)
+
+        await asyncio.sleep(0)
+        
+        results: list = await asyncio.gather(*tasks)
+
+        results = [item for item in results if item != None]
+
+        print(results)
 
     @override
     async def input(self, event: ft.KeyboardEvent) -> None:
@@ -157,7 +234,7 @@ class FillPdf(ViewContainer):
             for index in range(500): # Limited for performance reasons...
                 cells: list[ft.DataCell] = []
                 
-                for column in csv.data.keys():
+                for column in csv.valid_headers:
                     cells.append(
                         ft.DataCell(
                             content=ft.Text(

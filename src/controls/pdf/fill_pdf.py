@@ -131,8 +131,8 @@ class Controls(ControlsContainer):
             ],
             label=tr("export-options"),
             value="PDF",
-            col=COL_SETTINGS_SMALL
-            
+            col=COL_SETTINGS_SMALL,
+            disabled=True,
         )
 
         self.export_button: ft.FilledButton = ft.FilledButton(
@@ -141,6 +141,7 @@ class Controls(ControlsContainer):
             col=COL_SETTINGS_BIG,
             height=BUTTON_HEIGHT,
             disabled=True,
+            
         )
 
         # col={"sm": 6, "md": 4, "xl": 2}

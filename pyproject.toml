@@ -8,7 +8,7 @@ authors = [
     { name = "IsaqueS", email = "isaquesalmeida@outlook.com" }
 ]
 dependencies = [
-  "flet==0.26.0",
+  "flet==0.27.1",
 ]
 
 [tool.flet]
@@ -31,7 +31,7 @@ path = "src"
 
 [tool.uv]
 dev-dependencies = [
-    "flet[all]==0.26.0",
+    "flet[all]==0.27.2",
 ]
 
 [tool.poetry]

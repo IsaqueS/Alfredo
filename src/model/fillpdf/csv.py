@@ -12,6 +12,7 @@ class CSV:
         self.valid_indexes: tuple = None
         self.valid_headers: tuple[str] = None
         self.invalid_headers: tuple[str] = None
+        self.amount_of_lines: int = 0
 
     async def read_csv(self) -> None:
         invalid_headers_list: list[str] = []
@@ -49,6 +50,7 @@ class CSV:
             await asyncio.sleep(0)
 
             for line in reader:
+                self.amount_of_lines += 1
                 for i in range(valid_headers_len):
                     index: int = self.valid_indexes[i]
                     self.data[self.valid_headers[i]].append(line[index])
