@@ -7,7 +7,7 @@ class Controls(ControlsContainer):
         super().__init__(view_container)
 
         self.title: ft.Text = ft.Text(
-            tr("loading")
+            tr("loading-preparing")
         )
 
         self.progress_bar: ft.ProgressBar = ft.ProgressBar(

@@ -95,7 +95,7 @@ class Controls(ControlsContainer):
         )
 
         self.open_document_button: ft.FilledButton = ft.FilledButton(
-            text=tr("open-template-document"),
+            text=tr("open-document-template"),
             icon=ft.Icons.FILE_COPY_ROUNDED,
             col=COL_SETTINGS,
             height=BUTTON_HEIGHT
@@ -118,7 +118,7 @@ class Controls(ControlsContainer):
         self.pick_export_path_button.on_click=partial(
             self.view_container.open_file,
             [],
-            tr("open-folder"),
+            tr("open-export-path"),
             (self.pick_export_path_button, "text", tr("loading-folder")),
             is_folder = True,
         )

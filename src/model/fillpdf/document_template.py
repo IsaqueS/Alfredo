@@ -14,7 +14,7 @@ class DocumentTemplate:
         self.file_names: tuple[str] = tuple(self.file_path.name.split("."))
         self.amount_done: float = 0.
         self.total_to_be_done: float = None
-        self.paths_used: set = set()
+        self.paths_used: dict = {}
     
     def close_file(self) -> None:
         # print("Closed Called")
@@ -31,24 +31,20 @@ class DocumentTemplate:
             " - ".join(data),
             self.file_names[-1],
         )
-        if name in self.paths_used:
-            file_index: int = 1
+
+        get_index: int | None = self.paths_used.get(name, None)
+
+        if isinstance(get_index, int):
+            self.paths_used[name] = get_index + 1
             name = "%s - %s(%s).%s"%(
                 self.file_names[0],
                 " - ".join(data),
-                file_index,
+                get_index,
                 self.file_names[-1],
             )
-            while name in self.paths_used:
-                file_index += 1
-                name = "%s - %s(%s).%s"%(
-                    self.file_names[0],
-                    " - ".join(data),
-                    file_index,
-                    self.file_names[-1],
-                )
+        else:
+            self.paths_used[name] = 1
 
-        self.paths_used.add(name)
         return name
 
     def set_counter(self, amount: float) -> None:

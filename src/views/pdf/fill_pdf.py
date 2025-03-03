@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import flet as ft
 from views.view_container import ViewContainer
@@ -36,27 +37,38 @@ class FillPdf(ViewContainer):
         self.view.controls.append(self.controls.app_bar)
         self.view.controls.append(self.controls.column)
     
-    async def load_exports(self, tasks: list, progress_bar: ft.ProgressBar) -> Optional[tuple[str,...]]:
+    async def load_exports(self, tasks: list, progress_bar: ft.ProgressBar, loading_text: ft.Text) -> Optional[tuple[str,...]]:
         
-        results: list = []
+        update_time: float = min(2.,max(.2,0.001 * self.document_template.total_to_be_done))
 
-        def execute(tasks: list):
-            for task in tasks:
-                result = task()
-                results.append(result)
-                self.document_template.add_to_counter()
-
-        thread: threading.Thread = threading.Thread(target=execute, args=([tasks]))
-        thread.start()
-
-        while thread.is_alive():
+        def update_ui() -> None:
             progress_bar.value = self.document_template.get_progress()
             progress_bar.update()
-            await asyncio.sleep(0.)
-            time.sleep(0.2)
+            loading_text.value = "%s [%d/%d]"%(
+                tr("loading"),
+                self.document_template.amount_done,
+                self.document_template.total_to_be_done,
+            )
+            loading_text.update()
 
-        progress_bar.value = self.document_template.get_progress()
-        progress_bar.update()
+        results: list = []
+
+        def execute(task):
+            result = task()
+            self.document_template.add_to_counter()
+            return result
+
+        with ThreadPoolExecutor(max_workers=min(8,os.process_cpu_count())) as executor:
+            futures = [executor.submit(execute,item) for item in tasks]
+
+            while any(not future.done() for future in futures):
+                update_ui()
+                await asyncio.sleep(0.)
+                time.sleep(update_time)
+
+            results = [future.result() for future in futures]
+        
+        update_ui()
 
         return results
 
@@ -126,7 +138,9 @@ class FillPdf(ViewContainer):
                 )
             )
         
-        results: list = await self.load_exports(tasks, progress_bar)
+        loading_text: ft.Text = self.routes["/pdffill/export"].controls.title
+        
+        results: list = await self.load_exports(tasks, progress_bar, loading_text)
 
         results = [item for item in results if item != None]
 

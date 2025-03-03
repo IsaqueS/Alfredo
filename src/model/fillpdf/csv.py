@@ -50,10 +50,14 @@ class CSV:
             await asyncio.sleep(0)
 
             for line in reader:
-                self.amount_of_lines += 1
-                for i in range(valid_headers_len):
-                    index: int = self.valid_indexes[i]
-                    self.data[self.valid_headers[i]].append(line[index])
+                try:
+                    for i in range(valid_headers_len):
+                        index: int = self.valid_indexes[i]
+                        self.data[self.valid_headers[i]].append(line[index])
+                except IndexError:
+                    continue
+                else:
+                    self.amount_of_lines += 1
 
 
 

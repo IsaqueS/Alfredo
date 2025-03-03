@@ -8,7 +8,7 @@ fill-pdf-title,Fill Documents,Preencher Documentos
 empty-csv-error,The File is empty.,O arquivo está vazio.
 invalid-csv-title,Invalid CSV,CSV invalido
 okay,Okay,Okay
-open-template-document,Open template document,Abrir documento modelo
+open-document-template,Open template document,Abrir documento modelo
 open-export-path,Open export folder,Abrir pasta de saida
 export-options,Export options,Opções de exportação
 export,Export,Exportar
@@ -38,3 +38,5 @@ loading-folder,Loading folder...,Carregando pasta...
 invalid-document-title,Invalid document,Documento invalido
 empty-document-error,The document is empty,O documento está vazio
 export-of,Export of,Exportação de
+loading,Loading...,Carregando...
+loading-preparing,Preparing...,Preparando...
