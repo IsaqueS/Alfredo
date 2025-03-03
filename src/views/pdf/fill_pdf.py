@@ -142,9 +142,11 @@ class FillPdf(ViewContainer):
                 )
             )
         
-        loading_text: ft.Text = self.routes["/pdffill/export"].controls.title
-        continue_button: ft.FilledButton = self.routes["/pdffill/export"].controls.continue_button
-        open_folder_button: ft.FilledButton = self.routes["/pdffill/export"].controls.open_folder_button
+        controls = self.routes["/pdffill/export"].controls
+
+        loading_text: ft.Text = controls.title
+        continue_button: ft.FilledButton = controls.continue_button
+        open_folder_button: ft.FilledButton = controls.open_folder_button
         open_folder_button.data = export_folder
         
         results: list = await self.load_exports(tasks, progress_bar, loading_text,(continue_button,open_folder_button))

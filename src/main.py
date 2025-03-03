@@ -1,6 +1,5 @@
 import flet as ft
 import os
-from model.loaded_views import LoadedViews
 from translation import translation_server
 from views import routes
 from pathlib import Path
@@ -45,9 +44,6 @@ async def main(page: ft.Page) -> None:
         file_picker=ft.FilePicker(
             on_result=file_picker_result
         ),
-        loaded_views= LoadedViews(page, 1),
-
-        
     )
 
     translation_server.csv_path = app_data.assets_path / "translations" / "lang.csv"

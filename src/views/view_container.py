@@ -36,7 +36,6 @@ class ViewContainer():
     def view(self) -> ft.View:
         if self.__VIEW is None:
             self.setup()
-            self.page.run_task(self.app_data.loaded_views.add, self)
         return self.__VIEW
     
     @property
@@ -48,7 +47,9 @@ class ViewContainer():
         return self.__APP_DATA
     
     async def go_back(self, event: ft.ControlEvent = None) -> None:
-        self.app_data.loaded_views.remove_view(self.page.views.pop())
+        container: ViewContainer = self.page.views.pop().container
+        container.__init__(is_reset=True)
+        container.free()
         self.page.update()
     
     async def go_to_next_view(self, route: str,event: ft.ControlEvent) -> None:

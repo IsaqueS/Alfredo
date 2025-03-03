@@ -9,6 +9,11 @@ COL_SETTINGS_SMALL: dict = {"sm": 6, "md": 4, "xl": 2}
 COL_SETTINGS_BIG: dict = {"sm": 12, "md": 8, "xl": 4}
 BUTTON_HEIGHT: int = 50
 
+EXPORT_TYPES: dict[str,tuple[str,...]] = {
+    "txt": ("txt",),
+    "docx": ("docx", "pdf"),
+}
+
 if TYPE_CHECKING:
     from views.pdf.fill_pdf import FillPdf
 
@@ -126,11 +131,10 @@ class Controls(ControlsContainer):
         self.export_file_options: ft.Dropdown = ft.Dropdown(
             width=160,
             options=[
-                ft.dropdown.Option("PDF"),
-                ft.dropdown.Option("PNG"),
+                ft.dropdown.Option(tr("none")),
             ],
             label=tr("export-options"),
-            value="PDF",
+            value=tr("none"),
             col=COL_SETTINGS_SMALL,
             disabled=True,
         )
@@ -198,10 +202,27 @@ class Controls(ControlsContainer):
     
     def reset_document_button(self) -> None:
         if self.view_container.document_template is None:
-            self.open_document_button.text = tr("open-template-document")
+            self.open_document_button.text = tr("open-document-template")
         else:
             self.open_document_button.text = "✅ %s: %s"%(
                 self.view_container.document_template.file_path.suffix.upper().replace(".",""),
                 self.view_container.document_template.file_path.name,
             )
+            self.update_export_options(self.view_container.document_template.file_names[-1])
         self.open_document_button.update()
+    
+    def update_export_options(self, file_type: str) -> None:
+        export_options = EXPORT_TYPES.get(file_type,(file_type,))
+        self.export_file_options.options = self.generate_export_options(export_options)
+        self.export_file_options.value = export_options[0]
+        self.export_file_options.disabled = False
+        self.export_file_options.update()
+    
+    @staticmethod
+    def generate_export_options(itens: tuple[str]) -> list[ft.dropdown.Option]:
+        options:list[ft.dropdown.Option] = []
+        for item in itens:
+            options.append(
+                ft.dropdown.Option(item)
+            )
+        return options
