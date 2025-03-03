@@ -13,17 +13,26 @@ class TXTTemplate(DocumentTemplate):
 
         self.file: codecs.StreamReaderWriter =  codecs.open(file_path, "r", self.text_encoding)
         
-        text: str = self.file.read()
+        self.text: str = self.file.read()
         
         self.valid_inputs = set(
-            re.findall("\\[.*?\\]",text)
+            re.findall("\\[.*?\\]",self.text)
         )
     
     @override
-    async def export(self, headers: tuple[str, ...], data: tuple[str, ...], path: str) -> Optional[tuple[str,...]]:
-        await super().export(headers,data,path)
-        await asyncio.sleep(random.uniform(0.1,10.))
-        print(data)
+    def export(self, headers: tuple[str, ...], data: tuple[str, ...], path: str) -> Optional[tuple[str,...]]:
+        super().export(headers,data,path)
+        new_text:str = self.text
+        
+        assert isinstance(headers, tuple), "%s is not an tuple!"
+        assert isinstance(data, tuple), "%s is not an tuple!"
+
+        for i in range(len(headers)):
+            new_text = new_text.replace(headers[i],data[i])
+
+        with open(path, "w") as file:
+            file.write(new_text)
+
     
     
 

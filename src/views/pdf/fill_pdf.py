@@ -9,7 +9,9 @@ from model.fillpdf.document_templates import TXTTemplate
 import asyncio
 import os
 from controls.pdf.fill_pdf import Controls
-from functools import partial, wraps
+from functools import partial
+import threading
+import time
 
 
 class FillPdf(ViewContainer):
@@ -34,12 +36,29 @@ class FillPdf(ViewContainer):
         self.view.controls.append(self.controls.app_bar)
         self.view.controls.append(self.controls.column)
     
-    async def update_loading(self, coroutine) -> Optional[tuple[str,...]]:
+    async def load_exports(self, tasks: list, progress_bar: ft.ProgressBar) -> Optional[tuple[str,...]]:
         
-        result = await coroutine
-        print("executed! hahahaha")
-        
-        return result
+        results: list = []
+
+        def execute(tasks: list):
+            for task in tasks:
+                result = task()
+                results.append(result)
+                self.document_template.add_to_counter()
+
+        thread: threading.Thread = threading.Thread(target=execute, args=([tasks]))
+        thread.start()
+
+        while thread.is_alive():
+            progress_bar.value = self.document_template.get_progress()
+            progress_bar.update()
+            await asyncio.sleep(0.)
+            time.sleep(0.2)
+
+        progress_bar.value = self.document_template.get_progress()
+        progress_bar.update()
+
+        return results
 
     async def export(self, event: ft.ControlEvent) -> None:
         # print("Exported: %s\nOn folder: %s\nUsing: %s" %(
@@ -75,6 +94,18 @@ class FillPdf(ViewContainer):
             export_folder = self.export_folder / new_folder_name
             Path.mkdir(export_folder)
 
+
+
+
+        self.page.views.append(self.routes["/pdffill/export"].view)
+        self.page.update()
+
+        progress_bar: ft.ProgressBar = self.routes["/pdffill/export"].controls.progress_bar
+
+        self.document_template.set_counter(self.csv.amount_of_lines)
+
+        await asyncio.sleep(0.05)
+
         tasks: list = []
         
         for index in range(self.csv.amount_of_lines):
@@ -87,23 +118,15 @@ class FillPdf(ViewContainer):
             data_tuple = tuple(data)
 
             tasks.append(
-                self.update_loading(
-                    self.document_template.export(
-                        self.csv.valid_headers,
-                        data_tuple,
-                        (export_folder / self.document_template.get_file_path(data_tuple)),
-                    )
+                partial(
+                    self.document_template.export,
+                    self.csv.valid_headers,
+                    data_tuple,
+                    (export_folder / self.document_template.get_file_path(data_tuple)),
                 )
             )
         
-        self.page.views.append(self.routes["/pdffill/export"].view)
-        self.page.update()
-
-        self.document_template.set_counter(self.csv.amount_of_lines)
-
-        await asyncio.sleep(0)
-        
-        results: list = await asyncio.gather(*tasks)
+        results: list = await self.load_exports(tasks, progress_bar)
 
         results = [item for item in results if item != None]
 
