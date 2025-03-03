@@ -32,3 +32,10 @@ class LoadedViews:
 
                 if len(self.__loaded_views) <= self.__MAX_SIZE:
                     break
+    
+    def remove_view(self, view: "ft.View") -> None:
+        for view_container in self.__loaded_views:
+            if view_container.view == view:
+                view_container.__init__(is_reset=True)
+                view_container.free()
+                self.__loaded_views.remove(view_container)

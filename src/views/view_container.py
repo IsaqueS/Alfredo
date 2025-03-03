@@ -48,7 +48,7 @@ class ViewContainer():
         return self.__APP_DATA
     
     async def go_back(self, event: ft.ControlEvent = None) -> None:
-        self.page.views.pop()
+        self.app_data.loaded_views.remove_view(self.page.views.pop())
         self.page.update()
     
     async def go_to_next_view(self, route: str,event: ft.ControlEvent) -> None:

@@ -37,15 +37,15 @@ class FillPdf(ViewContainer):
         self.view.controls.append(self.controls.app_bar)
         self.view.controls.append(self.controls.column)
     
-    async def load_exports(self, tasks: list, progress_bar: ft.ProgressBar, loading_text: ft.Text) -> Optional[tuple[str,...]]:
+    async def load_exports(self, tasks: list, progress_bar: ft.ProgressBar, loading_text: ft.Text, controls_to_enable: tuple[ft.Button] = tuple()) -> Optional[tuple[str,...]]:
         
         update_time: float = min(2.,max(.2,0.001 * self.document_template.total_to_be_done))
 
-        def update_ui() -> None:
+        def update_ui(loading_msg: str = tr("loading")) -> None:
             progress_bar.value = self.document_template.get_progress()
             progress_bar.update()
             loading_text.value = "%s [%d/%d]"%(
-                tr("loading"),
+                loading_msg,
                 self.document_template.amount_done,
                 self.document_template.total_to_be_done,
             )
@@ -68,7 +68,11 @@ class FillPdf(ViewContainer):
 
             results = [future.result() for future in futures]
         
-        update_ui()
+        update_ui(tr("finished"))
+
+        for control in controls_to_enable:
+            control.disabled = False
+            control.update()
 
         return results
 
@@ -139,8 +143,11 @@ class FillPdf(ViewContainer):
             )
         
         loading_text: ft.Text = self.routes["/pdffill/export"].controls.title
+        continue_button: ft.FilledButton = self.routes["/pdffill/export"].controls.continue_button
+        open_folder_button: ft.FilledButton = self.routes["/pdffill/export"].controls.open_folder_button
+        open_folder_button.data = export_folder
         
-        results: list = await self.load_exports(tasks, progress_bar, loading_text)
+        results: list = await self.load_exports(tasks, progress_bar, loading_text,(continue_button,open_folder_button))
 
         results = [item for item in results if item != None]
 
