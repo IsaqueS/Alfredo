@@ -108,7 +108,7 @@ class Controls(ControlsContainer):
 
         self.open_document_button.on_click = on_click=partial(
             self.view_container.open_file,
-            ["txt"],
+            list(EXPORT_TYPES.keys()),
             tr("open-document-template"),
             (self.open_document_button, "text", tr("loading-document-template"))
         )
@@ -129,7 +129,7 @@ class Controls(ControlsContainer):
         )
 
         self.export_file_options: ft.Dropdown = ft.Dropdown(
-            width=160,
+            width=400,
             options=[
                 ft.dropdown.Option(tr("none")),
             ],
@@ -137,6 +137,7 @@ class Controls(ControlsContainer):
             value=tr("none"),
             col=COL_SETTINGS_SMALL,
             disabled=True,
+            expand=True
         )
 
         self.export_button: ft.FilledButton = ft.FilledButton(
@@ -176,6 +177,11 @@ class Controls(ControlsContainer):
             ],
             expand=True
         )
+
+    def show_document_error(self, msg: str) -> None:
+        self.invalid_document_alert.content.value = msg
+        self.view_container.page.open(self.invalid_document_alert)
+        self.view_container.page.update()
 
     async def close_banner(self, event = None) -> None:
         if self.invalid_headers_banner.open:

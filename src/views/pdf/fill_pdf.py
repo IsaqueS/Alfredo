@@ -5,13 +5,12 @@ from views.view_container import ViewContainer
 from typing import Any, Coroutine, Optional, override
 from translation import tr
 from model.fillpdf.csv import CSV, InvalidCSVHeader
-from model.fillpdf.document_template import DocumentTemplate, DocumentEmpty
-from model.fillpdf.document_templates import TXTTemplate
+from model.fillpdf.document_template import DocumentTemplate, DocumentEmpty, DocumentWithNoInputs
+from model.fillpdf.document_templates import DOCXTemplate, TXTTemplate
 import asyncio
 import os
 from controls.pdf.fill_pdf import Controls
 from functools import partial
-import threading
 import time
 
 
@@ -39,6 +38,8 @@ class FillPdf(ViewContainer):
     
     async def load_exports(self, tasks: list, progress_bar: ft.ProgressBar, loading_text: ft.Text, controls_to_enable: tuple[ft.Button] = tuple()) -> Optional[tuple[str,...]]:
         
+        self.document_template.prepare_export()
+
         update_time: float = min(2.,max(.2,0.001 * self.document_template.total_to_be_done))
 
         def update_ui(loading_msg: str = tr("loading")) -> None:
@@ -68,6 +69,8 @@ class FillPdf(ViewContainer):
 
             results = [future.result() for future in futures]
         
+        self.document_template.clean_export()
+
         update_ui(tr("finished"))
 
         for control in controls_to_enable:
@@ -110,15 +113,13 @@ class FillPdf(ViewContainer):
             export_folder = self.export_folder / new_folder_name
             Path.mkdir(export_folder)
 
-
-
-
         self.page.views.append(self.routes["/pdffill/export"].view)
         self.page.update()
 
         progress_bar: ft.ProgressBar = self.routes["/pdffill/export"].controls.progress_bar
 
         self.document_template.set_counter(self.csv.amount_of_lines)
+        self.document_template.set_export_type(self.controls.export_file_options.value.lower())
 
         await asyncio.sleep(0.05)
 
@@ -133,9 +134,11 @@ class FillPdf(ViewContainer):
             
             data_tuple = tuple(data)
 
+
+
             tasks.append(
                 partial(
-                    self.document_template.export,
+                    self.document_template.current_export_function,
                     self.csv.valid_headers,
                     data_tuple,
                     (export_folder / self.document_template.get_file_path(data_tuple)),
@@ -206,11 +209,25 @@ class FillPdf(ViewContainer):
                 try:
                     self.document_template = TXTTemplate(file_path)
                 except DocumentEmpty as e:
-                    self.controls.invalid_document_alert.content.value = tr("empty-document-error")
-                    self.page.open(
-                        self.controls.invalid_document_alert
+                    self.controls.show_document_error(tr("empty-document-error"))
+                except DocumentWithNoInputs:
+                    self.controls.show_document_error("%s\n\n%s"%(
+                        tr("document-no-inputs-error"),
+                        tr("document-no-inputs-tip"),
+                        )
                     )
-                    self.page.update()
+                self.controls.reset_document_button()
+            case ".docx":
+                try:
+                    self.document_template = DOCXTemplate(file_path)
+                except DocumentEmpty:
+                    self.controls.show_document_error(tr("empty-document-error"))
+                except DocumentWithNoInputs:
+                    self.controls.show_document_error("%s\n\n%s"%(
+                        tr("document-no-inputs-error"),
+                        tr("document-no-inputs-tip"),
+                        )
+                    )
                 self.controls.reset_document_button()
                 
 
