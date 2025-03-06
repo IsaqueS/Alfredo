@@ -1,11 +1,15 @@
 from typing import Optional, override
 from model.fillpdf.document_template import DocumentTemplate, DocumentWithNoInputs
-from pathlib import Path
 import codecs
 import re
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
 class TXTTemplate(DocumentTemplate):
-    def __init__(self, file_path: Path) -> None:
+    def __init__(self, file_path: "Path") -> None:
         super().__init__(file_path)
         assert file_path.suffix.lower() == ".txt", "%s is not .txt!"%file_path.suffix.lower()
 
@@ -21,7 +25,7 @@ class TXTTemplate(DocumentTemplate):
         
     
     @override
-    def export(self, headers: tuple[str, ...], data: tuple[str, ...], path: str) -> Optional[tuple[str,...]]:
+    def export(self, headers: tuple[str, ...], data: tuple[str, ...], path: "Path") -> Optional[tuple[str,...]]:
         super().export(headers,data,path)
         new_text:str = self.text
 

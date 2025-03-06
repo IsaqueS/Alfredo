@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import flet as ft
 from views.view_container import ViewContainer
-from typing import Any, Coroutine, Optional, override
+from typing import Optional, override
 from translation import tr
 from model.fillpdf.csv import CSV, InvalidCSVHeader
 from model.fillpdf.document_template import DocumentTemplate, DocumentEmpty, DocumentWithNoInputs
@@ -11,7 +11,6 @@ import asyncio
 import os
 from controls.pdf.fill_pdf import Controls
 from functools import partial
-import time
 
 
 class FillPdf(ViewContainer):
@@ -38,9 +37,9 @@ class FillPdf(ViewContainer):
     
     async def load_exports(self, tasks: list, progress_bar: ft.ProgressBar, loading_text: ft.Text, controls_to_enable: tuple[ft.Button] = tuple()) -> Optional[tuple[str,...]]:
         
-        self.document_template.prepare_export()
+        self.document_template.prepare_export()#self.export_folder)
 
-        update_time: float = min(2.,max(.2,0.001 * self.document_template.total_to_be_done))
+        update_time: float = min(2.,max(.5,0.001 * self.document_template.total_to_be_done))
 
         def update_ui(loading_msg: str = tr("loading")) -> None:
             progress_bar.value = self.document_template.get_progress()
@@ -59,15 +58,22 @@ class FillPdf(ViewContainer):
             self.document_template.add_to_counter()
             return result
 
-        with ThreadPoolExecutor(max_workers=min(8,os.process_cpu_count())) as executor:
-            futures = [executor.submit(execute,item) for item in tasks]
+        with ThreadPoolExecutor(max_workers=min(64,min(os.process_cpu_count()*2,len(tasks)))) as executor:
+            print(executor._max_workers)
+            print(update_time)
+            loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
 
-            while any(not future.done() for future in futures):
+            async_tasks = [loop.run_in_executor(executor,partial(execute,item)) for item in tasks]
+
+            task = asyncio.gather(*async_tasks)
+
+            while not task.done():
                 update_ui()
-                await asyncio.sleep(0.)
-                time.sleep(update_time)
+                await asyncio.sleep(update_time)
 
-            results = [future.result() for future in futures]
+            results = await task
+
+            print(results)
         
         self.document_template.clean_export()
 
@@ -133,8 +139,6 @@ class FillPdf(ViewContainer):
                 data.append(self.csv.data[header][index])
             
             data_tuple = tuple(data)
-
-
 
             tasks.append(
                 partial(
@@ -216,6 +220,8 @@ class FillPdf(ViewContainer):
                         tr("document-no-inputs-tip"),
                         )
                     )
+                except Exception as e:
+                    self.controls.show_document_error(e)
                 self.controls.reset_document_button()
             case ".docx":
                 try:
@@ -228,6 +234,8 @@ class FillPdf(ViewContainer):
                         tr("document-no-inputs-tip"),
                         )
                     )
+                except Exception as e:
+                    self.controls.show_document_error(e)
                 self.controls.reset_document_button()
                 
 
@@ -257,9 +265,7 @@ class FillPdf(ViewContainer):
                     allowed_extensions=extensions
                 )
 
-            self.button_file_types = set(extensions)
-
-        
+            self.button_file_types = set(extensions)     
 
     def get_table(self, csv:CSV) -> ft.DataTable:
 

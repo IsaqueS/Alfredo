@@ -6,11 +6,11 @@ class DocumentTemplate:
     def __init__(self, file_path: Path):
         assert isinstance(file_path, Path), "%s is not an Path!"%file_path
         self.file_path: Path = file_path
+        self.file = None
         if os.path.getsize(file_path) == 0:
             raise DocumentEmpty("'%s' is empty!"%file_path)
         self.text_encoding: str = "utf-8"
         self.valid_inputs: set[str] = set()
-        self.file = None
         self.file_names: tuple[str] = tuple(self.file_path.name.split("."))
         self.amount_done: float = 0.
         self.total_to_be_done: float = None

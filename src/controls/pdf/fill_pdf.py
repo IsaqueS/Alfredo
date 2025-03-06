@@ -11,7 +11,7 @@ BUTTON_HEIGHT: int = 50
 
 EXPORT_TYPES: dict[str,tuple[str,...]] = {
     "txt": ("txt",),
-    "docx": ("docx", "pdf"),
+    "docx": ("docx", )#"pdf" #Pdf may be added later, but for now, its very buggy,
 }
 
 if TYPE_CHECKING:

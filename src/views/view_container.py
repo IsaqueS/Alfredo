@@ -48,9 +48,11 @@ class ViewContainer():
     
     async def go_back(self, event: ft.ControlEvent = None) -> None:
         container: ViewContainer = self.page.views.pop().container
+        self.page.update()
+        await asyncio.sleep(0.)
         container.__init__(is_reset=True)
         container.free()
-        self.page.update()
+        
     
     async def go_to_next_view(self, route: str,event: ft.ControlEvent) -> None:
         self.page.views.append(self.routes[route].view)

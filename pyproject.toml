@@ -9,13 +9,16 @@ authors = [
 ]
 dependencies = [
   "flet[all]==0.27.5",
-  "python-docx==1.1.2"
+  "python-docx==1.1.2",
 ]
 
 [tool.flet]
 # org name in reverse domain name notation, e.g. "com.mycompany".
 # Combined with project.name to build bundle ID for iOS and Android apps
 org = "com.isaques"
+compile.app = true # --compile-app
+compile.packages = true # --compile-packages
+compile.cleanup = true # --cleanup-on-compile
 
 # project display name that is used as an app title on Android and iOS home screens,
 # shown in window titles and about app dialogs on desktop.

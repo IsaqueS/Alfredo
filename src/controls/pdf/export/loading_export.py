@@ -1,3 +1,4 @@
+import gc
 from controls.control_container import ControlsContainer
 import flet as ft
 from translation import tr
@@ -56,3 +57,4 @@ class Controls(ControlsContainer):
         self.view_container.page.views[-2].container.free()
         self.view_container.page.views[-2] = self.view_container.app_data.routes["/pdffill/"].view
         await self.view_container.go_back()
+        gc.collect()
