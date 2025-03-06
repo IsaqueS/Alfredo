@@ -3,7 +3,7 @@ from docx.document import Document
 from docx.text.paragraph import Paragraph
 from pathlib import Path
 from model.fillpdf.document_template import DocumentTemplate, DocumentWithNoInputs
-import re, docx, io, tempfile, os#, docx2pdf
+import re, docx, io, tempfile, os
 
 
 
